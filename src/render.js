@@ -118,105 +118,6 @@ function drawPlayer(e) {
   e.beginPath(); e.ellipse(-p.r * 0.05, 0, p.r * 0.35, p.r * 0.12, 0, 0, Math.PI * 2); e.fill();
   e.restore();
 }
-function drawZombieSmall(e, z) {
-  const r = z.r;
-  // legs: scurrying gait (locked to motion via z.walk)
-  e.strokeStyle = '#42572f';
-  e.lineCap = 'round';
-  e.lineWidth = 4;
-  const s = Math.sin(z.walk);
-  e.beginPath(); e.moveTo(-0.15*r, -0.4*r); e.lineTo(-0.35*r + s*0.3*r, -0.55*r); e.stroke();
-  e.beginPath(); e.moveTo(-0.15*r, 0.4*r); e.lineTo(-0.35*r - s*0.3*r, 0.55*r); e.stroke();
-  // arms: both reach forward (classic zombie reach)
-  const sway = Math.sin(time * 6 + z.wob) * 0.18 * r;
-  e.lineWidth = 4;
-  e.strokeStyle = '#5d7a46';
-  e.beginPath(); e.moveTo(0.2*r, -0.5*r); e.lineTo(1.45*r, -0.55*r + sway); e.stroke();
-  e.beginPath(); e.moveTo(0.2*r, 0.5*r); e.lineTo(1.45*r, 0.55*r - sway); e.stroke();
-  // torso: lean, forward hunch
-  e.fillStyle = '#5d7a46';
-  e.beginPath(); e.ellipse(0.05*r, 0, 0.85*r, 0.72*r, 0, 0, Math.PI*2); e.fill();
-  // head (forward)
-  e.fillStyle = '#6f8f52';
-  e.beginPath(); e.arc(0.55*r, 0, 0.48*r, 0, Math.PI*2); e.fill();
-  // open jaw
-  e.fillStyle = '#3e5329';
-  e.beginPath(); e.ellipse(0.72*r, 0.12*r, 0.2*r, 0.14*r, 0, 0, Math.PI*2); e.fill();
-  // eyes
-  e.fillStyle = '#dbe69a';
-  e.beginPath(); e.arc(0.66*r, -0.14*r, 0.08*r, 0, Math.PI*2); e.fill();
-  e.beginPath(); e.arc(0.66*r, 0.24*r, 0.08*r, 0, Math.PI*2); e.fill();
-}
-function drawZombieBig(e, z) {
-  const r = z.r;
-  // legs: slow plod
-  e.strokeStyle = '#3a4c2b';
-  e.lineCap = 'round';
-  e.lineWidth = 7;
-  const s = Math.sin(z.walk);
-  e.beginPath(); e.moveTo(-0.25*r, -0.45*r); e.lineTo(-0.45*r + s*0.22*r, -0.6*r); e.stroke();
-  e.beginPath(); e.moveTo(-0.25*r, 0.45*r); e.lineTo(-0.45*r - s*0.22*r, 0.6*r); e.stroke();
-  // arms: one lurches forward, one raised menacing (slow pump)
-  const pump = Math.sin(time * 3 + z.wob) * 0.2 * r;
-  e.lineWidth = 8;
-  e.strokeStyle = '#4f6b3a';
-  e.beginPath(); e.moveTo(0.15*r, 0.5*r); e.lineTo(1.5*r, 0.55*r + pump); e.stroke();
-  e.beginPath(); e.moveTo(0.15*r, -0.5*r); e.lineTo(0.85*r, -1.05*r - pump); e.stroke();
-  // bulky torso
-  e.fillStyle = '#4f6b3a';
-  e.beginPath(); e.ellipse(0.05*r, 0, 1.0*r, 0.9*r, 0, 0, Math.PI*2); e.fill();
-  // shoulder bulks
-  e.fillStyle = '#587a44';
-  e.beginPath(); e.arc(-0.12*r, -0.42*r, 0.4*r, 0, Math.PI*2); e.fill();
-  e.beginPath(); e.arc(-0.12*r, 0.42*r, 0.4*r, 0, Math.PI*2); e.fill();
-  // head (forward)
-  e.fillStyle = '#6a8a4c';
-  e.beginPath(); e.arc(0.55*r, 0, 0.58*r, 0, Math.PI*2); e.fill();
-  // snout / jaw
-  e.fillStyle = '#445c33';
-  e.beginPath(); e.ellipse(0.82*r, 0.12*r, 0.3*r, 0.22*r, 0, 0, Math.PI*2); e.fill();
-  // eyes (glowing)
-  e.fillStyle = '#e6ef9d';
-  e.beginPath(); e.arc(0.78*r, -0.16*r, 0.1*r, 0, Math.PI*2); e.fill();
-  e.beginPath(); e.arc(0.78*r, 0.3*r, 0.1*r, 0, Math.PI*2); e.fill();
-}
-function drawZombie(e, z) {
-  const a = Math.atan2(player.y - z.y, player.x - z.x);
-  // ground shadow (world-space, unrotated)
-  e.save();
-  e.translate(z.x, z.y);
-  e.scale(1, 0.55);
-  e.fillStyle = 'rgba(0,0,0,0.25)';
-  e.beginPath(); e.arc(0, 0, z.r, 0, Math.PI*2); e.fill();
-  e.restore();
-  e.save();
-  e.translate(z.x, z.y);
-  e.rotate(a);
-  if (z.big) drawZombieBig(e, z); else drawZombieSmall(e, z);
-  // hit flash
-  if (z.flash > 0) {
-    e.globalAlpha = z.flash;
-    e.fillStyle = '#ffffff';
-    e.beginPath(); e.arc(0, 0, z.r, 0, Math.PI*2); e.fill();
-    e.globalAlpha = 1;
-  }
-  // drowsy tint: passive shamblers read as non-threatening
-  if (z.kind === 'shambler' && z.mode === 'wander') {
-    e.globalAlpha = 0.3;
-    e.fillStyle = '#1a2415';
-    e.beginPath(); e.arc(0, 0, z.r, 0, Math.PI*2); e.fill();
-    e.globalAlpha = 1;
-  }
-  e.restore();
-  // HP bar for big zombies
-  if (z.big && z.hp < 3) {
-    const w = z.r * 1.6, x = z.x - w / 2, y = z.y - z.r - 8;
-    e.fillStyle = 'rgba(0,0,0,0.5)';
-    e.fillRect(x, y, w, 3);
-    e.fillStyle = '#c0392b';
-    e.fillRect(x, y, w * (z.hp / 3), 3);
-  }
-}
 function drawHUD(e) {
   // HP bar
   const bx = 20, by = 18, bw = 200, bh = 14;
@@ -250,7 +151,7 @@ function draw() {
   ents.sort((a, b) => a.y - b.y);
   for (const en of ents) {
     if (en.kind === 'p') drawPlayer(ctx);
-    else drawZombie(ctx, en.ref);
+    else en.ref.draw(ctx);
   }
   drawHUD(ctx);
 }

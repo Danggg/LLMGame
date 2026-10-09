@@ -9,7 +9,7 @@ scripts in order; **everything shares one global scope**. Load order in `index.h
 is significant — later files use globals declared earlier:
 
 ```
-util → audio → state → ground → particles → zombies → player → render → input → main
+util → audio → state → ground → particles → zombies/zombie → zombies/runner → zombies/shambler → zombies/brute → zombies.js → player → render → input → main
 ```
 
 - Canvas: `#c`, fixed logical size **960×540** (`W`, `H` in `state.js`), CSS-scaled to viewport. All game coordinates are canvas-space; mouse is mapped through `getBoundingClientRect() * (W / rect.width)`.
@@ -25,9 +25,13 @@ util → audio → state → ground → particles → zombies → player → ren
 | `src/state.js` | Canvas/ctx/overlay refs + **all shared mutable state** |
 | `src/ground.js` | One-time pre-rendered ground texture (offscreen canvas `ground`) |
 | `src/particles.js` | `blood(x,y,n)`, `updateParticles(dt)` |
-| `src/zombies.js` | Spawn, chase/wander/wobble/separation, contact damage, `swingHit()`, `killZombie()` |
+| `src/zombies.js` | spawn, swing hit detection (`swingHit()`), kill logic (`killZombie()`), pairwise separation |
+| `src/zombies/zombie.js` | `Zombie` base class: chase/wobble physics, contact damage, shared drawing (shadow, hit flash, HP bar) |
+| `src/zombies/runner.js` | `Runner` subclass — fast chaser |
+| `src/zombies/shambler.js` | `Shambler` subclass — passive wanderer, drowsy tint |
+| `src/zombies/brute.js` | `Brute` subclass — big brute with HP bar |
 | `src/player.js` | `startSwing()`, `updatePlayer(dt)` — movement + i-frames + swing timing |
-| `src/render.js` | All drawing: `drawPlayer`, `drawZombie`, `drawSword`, `drawHUD`, `draw()` |
+| `src/render.js` | all drawing: `drawPlayer`, `drawSword`, `drawHUD`, `draw()` (zombies self-draw via `z.draw()`) |
 | `src/input.js` | Keyboard/mouse listeners only (no game logic) |
 | `src/main.js` | `reset()`, `gameOver()`, `requestAnimationFrame` loop, `window.__g` debug hook |
 
@@ -106,6 +110,6 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 ## Coding conventions
 
 - Every file: comment header, `'use strict';`, 2-space indent, semicolons, `const`/`let` for globals, plain function declarations (hoisted across files — rely on this).
-- No `this`, no classes, no imports/exports. Adding a module system is out of scope unless asked.
+- No imports/exports anywhere. The only classes in the codebase are the zombie types in `src/zombies/` (base `Zombie` + `Runner`/`Shambler`/`Brute`, instantiated in `spawnZombie()`); everything else is plain functions + globals. Adding a module system is out of scope unless asked.
 - New globals go in `state.js`; new listeners go in `input.js`; new drawing goes in `render.js`; keep the file-responsibility split.
 - Keep `README.md`'s Controls table and the hint strings in `index.html` + `main.js` in sync when input changes (three places, easy to miss).

@@ -1,4 +1,5 @@
-// zombies + swing hit detection
+// zombies: spawning, shared update loop (per-type physics in src/zombies/
+// classes — zombie/runner/shambler/brute), swing hit detection, kills
 'use strict';
 
 function swingHit() {
@@ -19,7 +20,7 @@ function swingHit() {
 }
 function killZombie(z) {
   z.dead = true;
-  score += z.r > 13 ? 25 : 10;
+  score += z.score;
   blood(z.x, z.y, 14);
   sfx('die');
 }
@@ -34,60 +35,14 @@ function spawnZombie() {
   else if (edge === 2) { x = rand(-m, W + m); y = H + m; }
   else { x = -m; y = rand(-m, H + m); }
   const big = Math.random() < 0.18;
-  const kind = big ? 'brute' : (Math.random() < 0.5 ? 'runner' : 'shambler');
-  zombies.push({
-    x, y,
-    r: big ? 18 : 12, hp: big ? 3 : 1,
-    speed: big ? rand(38, 55) : kind === 'runner' ? rand(130, 185) : rand(28, 45),
-    dmg: big ? 25 : 12,
-    kind, mode: kind === 'shambler' ? 'wander' : 'hunt',
-    wanderAng: rand(0, Math.PI * 2),
-    wob: rand(0, Math.PI * 2), walk: rand(0, Math.PI * 2), flash: 0, stun: 0, lastHit: -1, dead: false,
-    big,
-  });
+  const z = big ? new Brute(x, y)
+    : (Math.random() < 0.5 ? new Runner(x, y) : new Shambler(x, y));
+  zombies.push(z);
 }
 function updateZombies(dt) {
   for (const z of zombies) {
-    if (z.dead) continue;
-    z.flash = Math.max(0, z.flash - dt * 4);
-    if (z.stun > 0) { z.stun -= dt; continue; }
-    const dx = player.x - z.x, dy = player.y - z.y;
-    const d = Math.hypot(dx, dy) || 1;
-    let nx, ny;
-    if (z.kind === 'shambler' && z.mode === 'wander') {
-      // passive: drift on a wandering heading until the player gets close
-      if (d < 110) z.mode = 'hunt';
-      else {
-        z.wanderAng += (Math.random() - 0.5) * 2 * dt;
-        if (z.x < 0 || z.x > W || z.y < 0 || z.y > H)
-          z.wanderAng = Math.atan2(H / 2 - z.y, W / 2 - z.x);
-        nx = Math.cos(z.wanderAng); ny = Math.sin(z.wanderAng);
-      }
-    }
-    if (z.mode === 'hunt') {
-      nx = dx / d; ny = dy / d;
-      // perpendicular wobble
-      const px = -ny, py = nx;
-      const wob = z.kind === 'shambler' ? 0.3 : 0.5;
-      nx += px * Math.sin(time * 2.2 + z.wob) * wob;
-      ny += py * Math.sin(time * 2.2 + z.wob) * wob;
-    }
-    const len = Math.hypot(nx, ny) || 1;
-    z.x += nx / len * z.speed * dt;
-    z.walk += z.speed * dt * 0.2; // gait phase — locked to motion, freezes when stunned
-    // contact with player
-    const pd = Math.hypot(player.x - z.x, player.y - z.y);
-    if (pd < z.r + player.r + 2) {
-      const ox = (player.x - z.x) / (pd || 1), oy = (player.y - z.y) / (pd || 1);
-      z.x -= ox * 10; z.y -= oy * 10;
-      if (player.invuln <= 0) {
-        player.hp -= z.dmg;
-        player.invuln = 0.8;
-        sfx('hurt');
-        blood(player.x, player.y, 5);
-        if (player.hp <= 0) { player.hp = 0; gameOver(); return; }
-      }
-    }
+    z.update(dt);
+    if (player.hp <= 0) return; // player died mid-pass
   }
   // pairwise separation
   for (let i = 0; i < zombies.length; i++) {

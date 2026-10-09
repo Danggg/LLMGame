@@ -25,7 +25,11 @@ everything shares the global scope, in the order listed):
 | `state.js` | canvas refs + shared game state |
 | `ground.js` | pre-rendered ground texture |
 | `particles.js` | blood particles |
-| `zombies.js` | spawn, movement, swing hit detection, kill logic |
+| `zombies.js` | spawn, swing hit detection, kill logic, pairwise separation |
+| `zombies/zombie.js` | `Zombie` base class: shared physics (chase, wobble, contact damage) + shared drawing (shadow, hit flash, HP bar) |
+| `zombies/runner.js` | `Runner` — fast chaser |
+| `zombies/shambler.js` | `Shambler` — slow passive wanderer, drowsy tint |
+| `zombies/brute.js` | `Brute` — big 3-hp zombie with HP bar |
 | `player.js` | movement, i-frames, swinging |
 | `render.js` | all drawing (player, sword, zombies, HUD, `draw`) |
 | `input.js` | keyboard / mouse listeners |

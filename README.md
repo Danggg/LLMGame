@@ -32,7 +32,7 @@ and coding conventions.
 
 ## Milestone 3
 
-- Boss every 5th wave (5, 10, …): a giant r30 zombie with wave-scaled HP (`20 + 10·(wave−4)`),
+- Boss on wave 2: a giant r30 zombie with wave-scaled HP (`20 + 10·(wave−4)`, min 20),
   a top-center boss HP bar, and guaranteed heart + 3 gems on death
 - Best score persisted in `localStorage` — shown in the HUD (`BEST`) and on the
   game-over screen (`NEW BEST!` / `Best <n>`)

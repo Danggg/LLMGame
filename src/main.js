@@ -35,14 +35,16 @@ function frame(t) {
     time += dt;
     const prevWave = wave;
     wave = 1 + Math.floor(time / 25);
-    if (wave > prevWave && wave % 5 === 0) {
-      // runner surge on waves 5, 10, …
-      for (let i = 0; i < 6 && zombies.length < 60; i++) {
-        const [x, y] = edgePos();
-        zombies.push(new Runner(x, y, Math.min(260, rand(130 + 6 * (wave - 1), 185 + 6 * (wave - 1)))));
+    if (wave > prevWave) {
+      if (wave % 5 === 0) {
+        // runner surge on waves 5, 10, …
+        for (let i = 0; i < 6 && zombies.length < 60; i++) {
+          const [x, y] = edgePos();
+          zombies.push(new Runner(x, y, Math.min(260, rand(130 + 6 * (wave - 1), 185 + 6 * (wave - 1)))));
+        }
       }
-      // boss joins the surge wave
-      if (!boss && zombies.length < 60) {
+      // boss joins the wave-2 push (once per run)
+      if (wave === 2 && !boss && zombies.length < 60) {
         const [x, y] = edgePos();
         boss = new Boss(x, y);
         zombies.push(boss);

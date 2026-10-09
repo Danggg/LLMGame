@@ -1,11 +1,11 @@
-// boss — giant zombie: r30, hp 20 + 10*(wave-4), speed 26–38, dmg 30,
-// score 150. Spawns on every 5th wave alongside the runner surge.
+// boss — giant zombie: r30, hp 20 + 10*(wave-4) [min 20], speed 26–38, dmg 30,
+// score 150. Spawns on the wave-2 push (once per run).
 // Always hunts with the base chase + 0.5 wobble; HP bar always shown.
 'use strict';
 
 class Boss extends Zombie {
   constructor(x, y) {
-    super(x, y, 30, 20 + 10 * (wave - 4), rand(26, 38), 30, 150);
+    super(x, y, 30, Math.max(20, 20 + 10 * (wave - 4)), rand(26, 38), 30, 150);
     this.kind = 'boss';
     this.showBar = true;
   }

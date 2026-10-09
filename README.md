@@ -13,20 +13,38 @@ python3 -m http.server 8000
 
 No build step, no dependencies — vanilla JS on a canvas.
 
+## Code layout
+
+`src/` holds plain scripts loaded in order by `index.html` (no modules, no bundler —
+everything shares the global scope, in the order listed):
+
+| File | Contents |
+|---|---|
+| `util.js` | math helpers (`rand`, `clamp`, `angDiff`) |
+| `audio.js` | lazy `AudioContext` + oscillator SFX |
+| `state.js` | canvas refs + shared game state |
+| `ground.js` | pre-rendered ground texture |
+| `particles.js` | blood particles |
+| `zombies.js` | spawn, movement, swing hit detection, kill logic |
+| `player.js` | movement, i-frames, swinging |
+| `render.js` | all drawing (player, sword, zombies, HUD, `draw`) |
+| `input.js` | keyboard / mouse listeners |
+| `main.js` | game flow (`reset`, `gameOver`), main loop, `window.__g` debug hook |
+
 ## Controls
 
 | Input | Action |
 |---|---|
-| WASD / arrows | move |
+| WASD | move |
 | mouse | aim sword |
-| click / `J` / `Space` | swing |
+| click | swing |
 | `R` | restart |
 
 ## Milestone 1 (current)
 
 - Player movement + mouse-aimed sword with cooldown, swing arc hitbox, knockback, i-frames
-- Zombies chase from screen edges with wobble, separation push, contact damage
-- Normal (1 hp) and big (3 hp, HP bar, heavier hit) zombies
+- Zombies spawn at screen edges: fast runners chase from spawn, slow shamblers wander passively until you get close or hit them (wobble, separation push, contact damage)
+- runner (fast) / shambler (slow, passive) / big (3 hp, HP bar, heavier hit) zombies
 - Score (10 / 25 points), wave indicator (ramps every 25 s), survival timer
 - Blood particles, hit flash, swing trail, pre-rendered textured ground
 - Oscillator SFX (swing / hit / die / hurt), lazy `AudioContext` on first gesture

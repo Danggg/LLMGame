@@ -21,12 +21,13 @@ function swingHit() {
 function killZombie(z) {
   z.dead = true;
   score += z.score;
-  blood(z.x, z.y, 14);
+  blood(z.x, z.y, z.kind === 'boss' ? 40 : 14);
   sfx('die');
+  if (z === boss) boss = null;
+  maybeDrop(z);
 }
 
-function spawnZombie() {
-  if (zombies.length >= 60) return;
+function edgePos() {
   const m = 20;
   const edge = Math.random() * 4 | 0;
   let x, y;
@@ -34,10 +35,18 @@ function spawnZombie() {
   else if (edge === 1) { x = W + m; y = rand(-m, H + m); }
   else if (edge === 2) { x = rand(-m, W + m); y = H + m; }
   else { x = -m; y = rand(-m, H + m); }
-  const big = Math.random() < 0.18;
-  const z = big ? new Brute(x, y)
-    : (Math.random() < 0.5 ? new Runner(x, y) : new Shambler(x, y));
-  zombies.push(z);
+  return [x, y];
+}
+
+function spawnZombie() {
+  if (zombies.length >= 60) return;
+  const w = wave;
+  const [x, y] = edgePos();
+  const bruteChance = Math.min(0.10 + (w - 1) * 0.05, 0.60);
+  const shamblerShare = Math.max(0.50 - (w - 1) * 0.05, 0.10);
+  if (Math.random() < bruteChance) zombies.push(new Brute(x, y));
+  else if (Math.random() < shamblerShare) zombies.push(new Shambler(x, y));
+  else zombies.push(new Runner(x, y, Math.min(260, rand(130 + 6 * (w - 1), 185 + 6 * (w - 1)))));
 }
 function updateZombies(dt) {
   for (const z of zombies) {

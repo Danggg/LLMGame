@@ -131,9 +131,43 @@ function drawHUD(e) {
   e.font = '14px ui-monospace, Menlo, Consolas, monospace';
   e.textAlign = 'right';
   e.fillText('SCORE ' + score, W - 20, 30);
-  e.fillText('WAVE ' + (1 + Math.floor(time / 25)), W - 20, 50);
+  e.fillText('WAVE ' + wave, W - 20, 50);
   e.fillText('TIME ' + Math.floor(time) + 's', W - 20, 70);
+  e.fillText('BEST ' + best, W - 20, 90);
   e.textAlign = 'left';
+  // boss HP bar (top center, while the boss is alive)
+  if (boss) {
+    const bw2 = 280, bh2 = 8, bx2 = W / 2 - bw2 / 2, by2 = 22;
+    e.fillStyle = 'rgba(0,0,0,0.5)'; e.fillRect(bx2, by2, bw2, bh2);
+    e.fillStyle = '#c0392b';
+    e.fillRect(bx2, by2, bw2 * (boss.hp / boss.maxHp), bh2);
+    e.strokeStyle = 'rgba(255,255,255,0.25)'; e.lineWidth = 1;
+    e.strokeRect(bx2 + .5, by2 + .5, bw2 - 1, bh2 - 1);
+    e.fillStyle = '#cfd3da';
+    e.font = '11px ui-monospace, Menlo, Consolas, monospace';
+    e.fillText('BOSS', bx2, by2 - 5);
+  }
+}
+function drawPickups(e) {
+  for (const p of pickups) {
+    const y = p.y + Math.sin(time * 2 + p.phase) * 3;
+    e.globalAlpha = p.life <= 3 ? p.life / 3 : 1;
+    if (p.kind === 'heart') {
+      e.fillStyle = '#e0455a';
+      e.beginPath(); e.arc(p.x - 3, y - 2, 4.5, 0, Math.PI * 2); e.fill();
+      e.beginPath(); e.arc(p.x + 3, y - 2, 4.5, 0, Math.PI * 2); e.fill();
+      e.beginPath(); e.moveTo(p.x - 6.8, y); e.lineTo(p.x + 6.8, y); e.lineTo(p.x, y + 8); e.closePath(); e.fill();
+    } else {
+      e.save();
+      e.translate(p.x, y); e.rotate(Math.PI / 4);
+      e.fillStyle = '#7fd4e0';
+      e.fillRect(-4.5, -4.5, 9, 9);
+      e.strokeStyle = 'rgba(255,255,255,0.55)'; e.lineWidth = 1;
+      e.beginPath(); e.moveTo(-4.5, -4.5); e.lineTo(4.5, -4.5); e.stroke();
+      e.restore();
+    }
+  }
+  e.globalAlpha = 1;
 }
 function draw() {
   ctx.drawImage(ground, 0, 0);
@@ -144,6 +178,7 @@ function draw() {
     ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
+  drawPickups(ctx);
   // y-sorted entities
   const ents = [];
   for (const z of zombies) ents.push({ y: z.y, kind: 'z', ref: z });

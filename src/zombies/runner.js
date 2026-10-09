@@ -3,8 +3,8 @@
 'use strict';
 
 class Runner extends Zombie {
-  constructor(x, y) {
-    super(x, y, 12, 1, rand(130, 185), 12, 10);
+  constructor(x, y, speed) {
+    super(x, y, 12, 1, speed != null ? speed : rand(130, 185), 12, 10);
     this.kind = 'runner';
   }
 }

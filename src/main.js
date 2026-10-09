@@ -6,16 +6,21 @@ function reset() {
   player.hp = player.maxHp;
   player.facing = 0; player.swing = 0; player.coolLeft = 0;
   player.invuln = 0; player.swingId++;
-  zombies = []; particles = [];
-  score = 0; time = 0; spawnTimer = 0.8;
+  zombies = []; particles = []; pickups = []; boss = null;
+  score = 0; time = 0; spawnTimer = 0.8; wave = 1;
   overlay.classList.add('hidden');
   state = 'play';
 }
 function gameOver() {
-  state = 'over';
+  const record = score > best;
+  if (record) {
+    best = score;
+    try { localStorage.setItem('zs-best', String(best)); } catch (e) {}
+  }
   overlay.querySelector('h1').textContent = 'YOU DIED';
-  overlay.querySelector('.sub').textContent =
-    'Score ' + score + ' — survived ' + Math.floor(time) + 's';
+  overlay.querySelector('.sub').innerHTML =
+    'Score ' + score + ' — survived ' + Math.floor(time) + 's<br>' +
+    (record ? 'NEW BEST!' : 'Best ' + best);
   overlay.querySelector('.hint').innerHTML =
     'WASD: move &nbsp;·&nbsp; click: swing &nbsp;·&nbsp; R: restart<br>' +
     '<span style="opacity:.7">click anywhere to restart</span>';
@@ -28,6 +33,22 @@ function frame(t) {
   lastT = t;
   if (state === 'play') {
     time += dt;
+    const prevWave = wave;
+    wave = 1 + Math.floor(time / 25);
+    if (wave > prevWave && wave % 5 === 0) {
+      // runner surge on waves 5, 10, …
+      for (let i = 0; i < 6 && zombies.length < 60; i++) {
+        const [x, y] = edgePos();
+        zombies.push(new Runner(x, y, Math.min(260, rand(130 + 6 * (wave - 1), 185 + 6 * (wave - 1)))));
+      }
+      // boss joins the surge wave
+      if (!boss && zombies.length < 60) {
+        const [x, y] = edgePos();
+        boss = new Boss(x, y);
+        zombies.push(boss);
+        sfx('boss');
+      }
+    }
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
       spawnZombie();
@@ -35,6 +56,7 @@ function frame(t) {
     }
     updatePlayer(dt);
     updateZombies(dt);
+    updatePickups(dt);
     updateParticles(dt);
   }
   if (state !== 'menu') draw();
@@ -49,5 +71,9 @@ window.__g = {
   get zombies() { return zombies; },
   get player() { return player; },
   get mouse() { return mouse; },
+  get pickups() { return pickups; },
+  get wave() { return wave; },
+  get boss() { return boss; },
+  get best() { return best; },
   reset,
 };

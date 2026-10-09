@@ -115,12 +115,8 @@ edge math.
 
 ## Invariants to preserve
 
-- `z.lastHit === player.swingId` swing dedup — untouched.
-- `zombies`/`particles`/`pickups` array-reassignment-via-filter pattern.
-- `player` mutated in place, never reassigned.
-- File-responsibility split: logic in `pickups.js`, drawing in `render.js`,
-  SFX table in `audio.js`, globals in `state.js`.
-- No new listeners; `input.js` unchanged.
+All preserved — they are permanent conventions now documented in AGENTS.md
+(mutation/filter conventions, file-responsibility split, no new listeners).
 
 ## Acceptance criteria
 
@@ -140,7 +136,7 @@ edge math.
 
 ## Verification
 
-1. `node --check` every `src/*.js` (same loop as the publish-release skill).
+1. `node --check` every `src/*.js` (same loop as the [publish-release skill](.omp/skills/publish-release/SKILL.md)).
 2. Serve the repo root; in the browser main world (per AGENTS.md debug
    section — main context, not an isolated-world wrapper):
    - Start: `document.getElementById('overlay').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))`; assert `__g.state === 'play'`.

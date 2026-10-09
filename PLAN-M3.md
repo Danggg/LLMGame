@@ -123,17 +123,8 @@ the stored value; a run that ties the best is not a new best.
 
 ## Invariants to preserve
 
-- `z.lastHit === player.swingId` swing dedup — untouched.
-- `zombies`/`particles`/`pickups` array-reassignment-via-filter pattern —
-  the boss lives in `zombies` like everything else; the extra `boss` reference
-  is a pointer, not a second copy of state.
-- `player` mutated in place, never reassigned.
-- 60-zombie cap, spawn cadence, and wave formula unchanged.
-- File-responsibility split: class in `zombies/boss.js`, logic in
-  `zombies.js`/`pickups.js`/`main.js`, drawing in `render.js`, SFX table in
-  `audio.js`, globals in `state.js`.
-- No new listeners; `input.js` unchanged.
-- All `localStorage` access wrapped in try/catch.
+All preserved (see AGENTS.md conventions). Note: the `boss` reference is a
+pointer into `zombies`, not a second copy of state.
 
 ## Acceptance criteria
 

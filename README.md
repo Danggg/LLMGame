@@ -2,6 +2,8 @@
 
 A small top-down survival game: you are a swordsman in the middle of a zombie horde. Swing, don't get touched, survive.
 
+[Play it live](https://danggg.github.io/LLMGame/) · [Releases](https://github.com/Danggg/LLMGame/releases)
+
 ## Run
 
 Open `index.html` directly in a browser, or:
@@ -44,7 +46,7 @@ and coding conventions.
 
 - Player movement + mouse-aimed sword with cooldown, swing arc hitbox, knockback, i-frames
 - Zombies spawn at screen edges: fast runners chase from spawn, slow shamblers wander passively until you get close (wobble, separation push, contact damage)
-- runner (fast) / shambler (slow, passive) / big (3 hp, HP bar, heavier hit) zombies
+- runner (fast) / shambler (slow, passive) / Brute (3 hp, HP bar, heavier hit) zombies
 - Score (10 / 25 points), wave indicator (ramps every 25 s), survival timer
 - Blood particles, hit flash, swing trail, pre-rendered textured ground
 - Oscillator SFX (swing / hit / die / hurt), lazy `AudioContext` on first gesture

@@ -80,7 +80,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 - Swing hitbox: distance `≤ 58 + z.r` AND `angDiff(zombie angle, player.facing) ≤ 1.4` rad.
 - Hit effect: `-1 hp`, `z.flash = 1`, `z.stun = 0.4` (zombie stops moving), 16 px knockback.
 - Contact: overlap `z.r + player.r + 2` always pushes the zombie 10 px away; damage only when `player.invuln <= 0` (then `−z.dmg`, `invuln = 0.8` i-frames). Player flash in render keys off `invuln`.
-- Zombies: runner `r12 hp1 dmg12, score 10` (always chases; speed wave-scaled); shambler `r12 hp1 dmg12 speed 28–45, score 10` (passive wanderer — starts chasing when the player comes within 110 px; aggro is one-way, and offscreen wanderers steer back toward center); big (chance grows with wave) `r18 hp3 dmg25 speed 38–55, score 25` with HP bar when `hp < 3`; boss (every 5th wave, with the surge) `r30 hp(20 + 10·(wave−4)) dmg30 speed 26–38, score 150` — always-hunting, HP bar always shown, plus a top-center boss bar in the HUD while alive; boss death drops a guaranteed heart + 3 gems.
+- Zombies: runner `r12 hp1 dmg12, score 10` (always chases; speed wave-scaled); shambler `r12 hp1 dmg12 speed 28–45, score 10` (passive wanderer — starts chasing when the player comes within 110 px; aggro is one-way, and offscreen wanderers steer back toward center); Brute (chance grows with wave) `r18 hp3 dmg25 speed 38–55, score 25` with HP bar when `hp < 3`; boss (every 5th wave, with the surge) `r30 hp(20 + 10·(wave−4)) dmg30 speed 26–38, score 150` — always-hunting, HP bar always shown, plus a top-center boss bar in the HUD while alive; boss death drops a guaranteed heart + 3 gems.
 - Spawn mix (w = wave): shambler share of small `max(0.50 - (w-1)*0.05, 0.10)`; brute chance `min(0.10 + (w-1)*0.05, 0.60)`; runner speed `rand(130 + 6*(w-1), 185 + 6*(w-1))` capped at 260. Wave 1 ≈ current game (10% brute, 50/50 small, 130–185).
 - Zombie motion: chase (hunt) or wander (passive shamblers) + perpendicular sine wobble (`z.wob` phase), then O(n²) pairwise separation push; dead removed by filter at end of `updateZombies`.
 
@@ -117,3 +117,9 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 - No imports/exports. The only classes in the codebase are the zombie types in `src/zombies/` (see file map), instantiated in `spawnZombie()`; everything else is plain functions + globals. Adding a module system is out of scope unless asked.
 - New globals go in `state.js`; new listeners go in `input.js`; new drawing goes in `render.js`; keep the file-responsibility split.
 - Keep `README.md`'s Controls table and the hint strings in `index.html` + `main.js` in sync when input changes (three places, easy to miss).
+
+## Publishing
+
+- Workflow: `.omp/skills/publish-release/SKILL.md` — commit → tag → `gh release create` → Pages check. **Only run when asked.**
+- Pages serves `main` at `/` (https://danggg.github.io/LLMGame/); the repo must stay public (Free plan). Tag the commit currently on `main`.
+- Releases: https://github.com/Danggg/LLMGame/releases

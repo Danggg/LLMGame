@@ -34,6 +34,7 @@ function gameOver() {
 function frame(t) {
   const dt = Math.min(0.05, (t - lastT) / 1000);
   lastT = t;
+  updateFog(dt);
   if (state === 'play') {
     time += dt;
     const prevWave = wave;
@@ -66,7 +67,7 @@ function frame(t) {
     updateParticles(dt);
   }
   if (state !== 'menu') draw();
-  else ctx.drawImage(ground, 0, 0);
+  else { ctx.drawImage(ground, 0, 0); drawFog(ctx); }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

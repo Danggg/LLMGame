@@ -185,6 +185,7 @@ function drawStones(e) {
 }
 function draw() {
   ctx.drawImage(ground, 0, 0);
+  drawFog(ctx);
   // particles
   for (const p of particles) {
     ctx.globalAlpha = Math.max(0, p.life / p.max);

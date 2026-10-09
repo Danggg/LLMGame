@@ -30,6 +30,14 @@ and coding conventions.
 | click | swing |
 | `R` | restart |
 
+## Milestone 5
+
+- Setting: the arena is now a graveyard — the pre-rendered ground carries
+  scattered weathered gravestones, moss, and grass, with the tomb of a great
+  warrior dead-centre (two-tier plinth, tall engraved stele with his sword)
+- Flowing mist: soft fog banks drift across the scene, fade in, and dissipate
+  from time to time; it also animates behind the menu screen
+
 ## Milestone 4
 
 - Thrower zombies from wave 3 (few at a time — max 3 alive): they keep
@@ -63,4 +71,4 @@ and coding conventions.
 
 ## Proposed next milestones
 
-- **M5** — Touch controls / gamepad support *(requires approval before starting)*
+- **M6** — Touch controls / gamepad support *(requires approval before starting)*

@@ -9,7 +9,7 @@ scripts in order; **everything shares one global scope**. Load order in `index.h
 is significant — later files use globals declared earlier:
 
 ```
-util → audio → state → ground → particles → pickups → stones → zombies/zombie → zombies/runner → zombies/shambler → zombies/brute → zombies/thrower → zombies/boss → zombies.js → player → render → input → main
+util → audio → state → ground → fog → particles → pickups → stones → zombies/zombie → zombies/runner → zombies/shambler → zombies/brute → zombies/thrower → zombies/boss → zombies.js → player → render → input → main
 ```
 
 - Canvas: `#c`, fixed logical size **960×540** (`W`, `H` in `state.js`), CSS-scaled to viewport. All game coordinates are canvas-space; mouse is mapped through `getBoundingClientRect() * (W / rect.width)`.
@@ -22,7 +22,8 @@ util → audio → state → ground → particles → pickups → stones → zom
 | `src/util.js` | `rand(a,b)`, `clamp(v,a,b)`, `angDiff(a,b)` (smallest angular distance) |
 | `src/audio.js` | Lazy `AudioContext` (`ac()`); `sfx(kind)` — oscillator SFX, spec table `[type, f0, f1, dur, gain]` for `swing`/`hit`/`die`/`hurt`/`pickup`/`gem`/`boss`/`throw`/`thud` |
 | `src/state.js` | Canvas/ctx/overlay refs + **all shared mutable state** |
-| `src/ground.js` | One-time pre-rendered ground texture (offscreen canvas `ground`) |
+| `src/ground.js` | One-time pre-rendered graveyard scene (offscreen canvas `ground`): moonlit ground, moss/grass/pebbles, 14 scattered gravestones, offering stones, and the tomb of a great warrior dead-centre (plinth + engraved stele + cap) |
+| `src/fog.js` | Flowing mist: 3 pre-rendered soft sprites, 9 fog banks (`fog`) that drift right, fade in, and dissipate — `updateFog(dt)`, `drawFog(e)`; also animates behind the menu |
 | `src/particles.js` | `blood(x,y,n)`, `dust(x,y,n)` (grey; per-particle color via `p.c`), `updateParticles(dt)` |
 | `src/pickups.js` | `spawnPickup(x,y,kind)`, `maybeDrop(z)`, `updatePickups(dt)` — hearts (heal) / gems (score) dropped by dead zombies |
 | `src/stones.js` | `throwStone(x,y,tx,ty,dmg)`, `updateStones(dt)` — stone projectiles: fly to a fixed spot, splash damage if the player is on it when they land |
@@ -67,7 +68,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 ```
 
 - `main.js` runs `requestAnimationFrame(frame)` from load; `dt` clamped to 0.05 s.
-- Update order per frame: `updatePlayer` → `updateZombies` → `updateStones` → `updatePickups` → `updateParticles` (only in `play`).
+- Update order per frame: `updateFog` (every state — the mist animates behind the menu too) → `updatePlayer` → `updateZombies` → `updateStones` → `updatePickups` → `updateParticles` (the rest only in `play`).
 - `reset()` in `main.js` re-centers player, zeroes score/time, clears arrays and `boss`, sets `state='play'`.
 - Spawn cadence: `spawnTimer` (starts 0.8 s), interval `max(0.4, 1.3 - time*0.015) * rand(0.7,1.3)`; cap **60 zombies**.
 - Wave: `1 + floor(time / 25)`, hoisted into shared state — HUD reads it, `spawnZombie()` keys its mix off it, and every 5th wave (5, 10, …) fires a 6-runner surge; the Boss spawns on the wave-2 push (skipped if the 60-cap is full); Throwers join from wave 3 (cap 3 alive).
@@ -91,7 +92,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 ## Rendering
 
 - Ground is pre-rendered once (don't repaint per frame).
-- `draw()` order: ground → particles (alpha = life/max) → pickups → **y-sorted entities** (player + zombies, painter's algorithm) → stones (in flight, over entities, with ground shadow + parabolic arc) → HUD (HP bar left, score/wave/time/best right, top-center boss bar while alive).
+- `draw()` order: ground → fog → particles (alpha = life/max) → pickups → **y-sorted entities** (player + zombies, painter's algorithm) → stones (in flight, over entities, with ground shadow + parabolic arc) → HUD (HP bar left, score/wave/time/best right, top-center boss bar while alive).
 - Player faces `player.facing` (local +x = facing); sword arm/sword drawn relative to that.
 - Colors are inline hex/rgba literals; no palette module.
 

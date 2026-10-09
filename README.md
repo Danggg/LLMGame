@@ -63,4 +63,4 @@ and coding conventions.
 
 ## Proposed next milestones
 
-- **M5** — Touch controls / gamepad support
+- **M5** — Touch controls / gamepad support *(requires approval before starting)*

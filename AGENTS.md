@@ -13,7 +13,7 @@ util → audio → state → ground → particles → pickups → stones → zom
 ```
 
 - Canvas: `#c`, fixed logical size **960×540** (`W`, `H` in `state.js`), CSS-scaled to viewport. All game coordinates are canvas-space; mouse is mapped through `getBoundingClientRect() * (W / rect.width)`.
-- `#overlay`: DOM menu / game-over screen, hidden (`.hidden`) during play.
+- `#overlay`: DOM menu / game-over screen, hidden (`.hidden`) during play. The menu shows a `.changelog` block (last 3 milestones); `gameOver()` hides it so the death screen stays clean.
 
 ## File map
 

@@ -13,6 +13,8 @@ function reset() {
 }
 function gameOver() {
   state = 'over';
+  const cl = overlay.querySelector('.changelog');
+  if (cl) cl.style.display = 'none';
   const record = score > best;
   if (record) {
     best = score;

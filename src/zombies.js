@@ -1,5 +1,5 @@
 // zombies: spawning, shared update loop (per-type physics in src/zombies/
-// classes — zombie/runner/shambler/brute), swing hit detection, kills
+// classes — zombie/runner/shambler/brute/thrower), swing hit detection, kills
 'use strict';
 
 function swingHit() {
@@ -44,6 +44,9 @@ function spawnZombie() {
   const [x, y] = edgePos();
   const bruteChance = Math.min(0.10 + (w - 1) * 0.05, 0.60);
   const shamblerShare = Math.max(0.50 - (w - 1) * 0.05, 0.10);
+  // throwers: wave 3+, few at a time (cap 3)
+  const throwers = zombies.reduce((n, z) => n + (z.kind === 'thrower' ? 1 : 0), 0);
+  if (w >= 3 && throwers < 3 && Math.random() < 0.15) { zombies.push(new Thrower(x, y)); return; }
   if (Math.random() < bruteChance) zombies.push(new Brute(x, y));
   else if (Math.random() < shamblerShare) zombies.push(new Shambler(x, y));
   else zombies.push(new Runner(x, y, Math.min(260, rand(130 + 6 * (w - 1), 185 + 6 * (w - 1)))));

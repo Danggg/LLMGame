@@ -6,12 +6,13 @@ function reset() {
   player.hp = player.maxHp;
   player.facing = 0; player.swing = 0; player.coolLeft = 0;
   player.invuln = 0; player.swingId++;
-  zombies = []; particles = []; pickups = []; boss = null;
+  zombies = []; particles = []; pickups = []; stones = []; boss = null;
   score = 0; time = 0; spawnTimer = 0.8; wave = 1;
   overlay.classList.add('hidden');
   state = 'play';
 }
 function gameOver() {
+  state = 'over';
   const record = score > best;
   if (record) {
     best = score;
@@ -58,6 +59,7 @@ function frame(t) {
     }
     updatePlayer(dt);
     updateZombies(dt);
+    updateStones(dt);
     updatePickups(dt);
     updateParticles(dt);
   }
@@ -72,7 +74,7 @@ window.__g = {
   get score() { return score; },
   get zombies() { return zombies; },
   get player() { return player; },
-  get mouse() { return mouse; },
+  get stones() { return stones; },
   get pickups() { return pickups; },
   get wave() { return wave; },
   get boss() { return boss; },

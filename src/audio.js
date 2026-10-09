@@ -24,8 +24,9 @@ function sfx(kind) {
       pickup:['sine', 520, 880, 0.18, 0.07],
       gem:   ['triangle', 700, 1400, 0.15, 0.07],
       boss:  ['sawtooth', 70, 35, 0.5, 0.12],
+      throw: ['sine', 240, 110, 0.15, 0.08],
+      thud:  ['sine', 130, 45, 0.12, 0.10],
     }[kind];
-    o.type = spec[0];
     o.frequency.setValueAtTime(spec[1], t0);
     o.frequency.exponentialRampToValueAtTime(spec[2], t0 + spec[3]);
     g.gain.setValueAtTime(spec[4], t0);

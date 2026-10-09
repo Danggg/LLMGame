@@ -30,6 +30,15 @@ and coding conventions.
 | click | swing |
 | `R` | restart |
 
+## Milestone 4
+
+- Thrower zombies from wave 3 (few at a time — max 3 alive): they keep
+  ~170 px of distance, stop, spin their arm for ~1.2 s, then hurl a stone
+  at the spot you occupy — the stone flies to that fixed spot, so moving
+  away evades it (15 splash damage, 2 hp, 20 points)
+- Stone projectiles: parabolic arc + ground shadow, dust on impact,
+  throw/thud SFX
+
 ## Milestone 3
 
 - Boss on wave 2: a giant r30 zombie with wave-scaled HP (`20 + 10·(wave−4)`, min 20),
@@ -54,4 +63,4 @@ and coding conventions.
 
 ## Proposed next milestones
 
-- **M4** — Touch controls / gamepad support
+- **M5** — Touch controls / gamepad support

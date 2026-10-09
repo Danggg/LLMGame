@@ -1,6 +1,6 @@
 // zombie base class: shared physics (chase, wobble, contact damage)
 // and shared drawing (shadow, hit flash, HP bar). Per-type subclasses
-// live in their own files: runner.js, shambler.js, brute.js
+// live in their own files: runner.js, shambler.js, brute.js, thrower.js
 'use strict';
 
 class Zombie {

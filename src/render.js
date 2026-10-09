@@ -169,12 +169,26 @@ function drawPickups(e) {
   }
   e.globalAlpha = 1;
 }
+function drawStones(e) {
+  for (const s of stones) {
+    const p = 1 - s.life / s.maxLife;
+    const h = 4 * 26 * p * (1 - p); // parabolic arc, peak ~26 px
+    // ground shadow
+    e.fillStyle = 'rgba(0,0,0,0.25)';
+    e.beginPath(); e.ellipse(s.x, s.y, 5, 3, 0, 0, Math.PI * 2); e.fill();
+    // stone
+    e.fillStyle = '#8f959e';
+    e.beginPath(); e.arc(s.x, s.y - h - 4, 4.5, 0, Math.PI * 2); e.fill();
+    e.fillStyle = '#b7bdc7';
+    e.beginPath(); e.arc(s.x - 1.2, s.y - h - 5.4, 1.6, 0, Math.PI * 2); e.fill();
+  }
+}
 function draw() {
   ctx.drawImage(ground, 0, 0);
   // particles
   for (const p of particles) {
     ctx.globalAlpha = Math.max(0, p.life / p.max);
-    ctx.fillStyle = p.r > 2.6 ? '#8e1f1f' : '#5c1010';
+    ctx.fillStyle = p.c || (p.r > 2.6 ? '#8e1f1f' : '#5c1010');
     ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
@@ -188,5 +202,6 @@ function draw() {
     if (en.kind === 'p') drawPlayer(ctx);
     else en.ref.draw(ctx);
   }
+  drawStones(ctx);
   drawHUD(ctx);
 }

@@ -20,6 +20,7 @@ const player = {
 let zombies = [];
 let particles = [];
 let pickups = [];
+let stones = [];
 let boss = null;              // current Boss reference (null when none alive)
 let best = 0;                 // best score (localStorage 'zs-best')
 try { best = parseInt(localStorage.getItem('zs-best'), 10) || 0; } catch (e) {}

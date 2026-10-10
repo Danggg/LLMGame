@@ -4,7 +4,7 @@ Top-down zombie survival: swordsman in the middle of a horde. Swing, survive, sc
 
 ## What this is
 
-Vanilla JS, **no build step, no modules, no dependencies, no linter**. One zero-dependency smoke test lives in `test/` (run with `node test/zombie-count.mjs`). `index.html` loads plain
+Vanilla JS, **no build step, no modules, no dependencies, no linter**. Zero-dependency smoke tests live in `test/` (plain `node`, no packages). `index.html` loads plain
 scripts in order; **everything shares one global scope**. Load order in `index.html`
 is significant — later files use globals declared earlier:
 
@@ -115,7 +115,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 - `window.__g` (set in `main.js`) is the smoke-test hook:
   `__g.state`, `__g.score`, `__g.zombies`, `__g.player`, `__g.stones`, `__g.mouse`, `__g.pickups`, `__g.wave`, `__g.boss`, `__g.best`, `__g.tier`, `__g.reset()`.
 - Smoke test: `node test/zombie-count.mjs` — launches headless Chromium over raw CDP, starts the game, spawns 9 stationary zombies on a grid, and asserts the rendered head-blob pixel count matches `__g.zombies.length` (screenshot to `/tmp/zombie-count.png`).
-- Manual variant: serve the repo root (see README → Run), open `http://localhost:8000`, start via `document.getElementById('overlay').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))`, then assert on `__g.*`.
+- Screenshot suite: `node test/zombies-screenshot.test.js` — freezes the game in `over` state, places N Runners (0/3/7/12/25) on a grid, captures canvas PNGs to `test/screenshots/zombies-<N>.png`, and asserts the drawn zombie-body count equals N.
 - Note for browser automation: evaluate page code in the **main world** (`tab.evaluate` / CDP `Runtime.evaluate` in main context); `page.evaluate` from an isolated-world wrapper returns a different scope where game globals are invisible.
 
 ## Coding conventions

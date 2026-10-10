@@ -169,7 +169,7 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const { srv, port } = await serve(ROOT);
   const cdpPort = await freePort();
-  const chrome = launchChrome(cdpPort);
+  const chrome = await launchChrome(cdpPort);
   let failures = 0;
   try {
     const cdp = await connectPage(cdpPort);

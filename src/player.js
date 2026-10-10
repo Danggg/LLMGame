@@ -4,7 +4,7 @@
 function startSwing() {
   if (state !== 'play' || player.coolLeft > 0) return;
   player.swing = 0.25;
-  player.coolLeft = player.cool;
+  player.coolLeft = SWORD_TIERS[player.tier - 1].cool;
   player.swingId++;
   sfx('swing');
 }

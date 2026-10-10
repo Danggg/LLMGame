@@ -5,7 +5,7 @@ function reset() {
   player.x = W / 2; player.y = H / 2;
   player.hp = player.maxHp;
   player.facing = 0; player.swing = 0; player.coolLeft = 0;
-  player.invuln = 0; player.swingId++;
+  player.invuln = 0; player.swingId++; player.tier = 1;
   zombies = []; particles = []; pickups = []; stones = []; boss = null;
   score = 0; time = 0; spawnTimer = 0.8; wave = 1;
   overlay.classList.add('hidden');
@@ -82,5 +82,6 @@ window.__g = {
   get wave() { return wave; },
   get boss() { return boss; },
   get best() { return best; },
+  get tier() { return player.tier; },
   reset,
 };

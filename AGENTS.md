@@ -24,8 +24,8 @@ util → audio → state → ground → fog → particles → pickups → stones
 | `src/state.js` | Canvas/ctx/overlay refs + **all shared mutable state** |
 | `src/ground.js` | One-time pre-rendered graveyard scene (offscreen canvas `ground`): moonlit ground, moss/grass/pebbles, 14 scattered gravestones, offering stones, and the tomb of a great warrior dead-centre (plinth + engraved stele + cap) |
 | `src/fog.js` | Flowing mist: 3 pre-rendered soft sprites, 9 fog banks (`fog`) that drift right, fade in, and dissipate — `updateFog(dt)`, `drawFog(e)`; also animates behind the menu |
-| `src/particles.js` | `blood(x,y,n)`, `dust(x,y,n)` (grey; per-particle color via `p.c`), `updateParticles(dt)` |
-| `src/pickups.js` | `spawnPickup(x,y,kind)`, `maybeDrop(z)`, `updatePickups(dt)` — hearts (heal) / gems (score) dropped by dead zombies |
+| `src/particles.js` | `blood(x,y,n)`, `dust(x,y,n)` (grey; per-particle color via `p.c`), `burst(x,y,color,n)` (colored radial), `updateParticles(dt)` |
+| `src/pickups.js` | `spawnPickup(x,y,kind)`, `maybeDrop(z)`, `updatePickups(dt)` — hearts (heal) / gems (score) / **sword shards** (upgrade the player's sword tier) dropped by dead zombies |
 | `src/stones.js` | `throwStone(x,y,tx,ty,dmg)`, `updateStones(dt)` — stone projectiles: fly to a fixed spot, splash damage if the player is on it when they land |
 | `src/zombies.js` | spawn, swing hit detection (`swingHit()`), kill logic (`killZombie()` → `maybeDrop(z)`), pairwise separation |
 | `src/zombies/zombie.js` | `Zombie` base class: chase/wobble physics, contact damage, shared drawing (shadow, hit flash, HP bar) |
@@ -43,14 +43,15 @@ util → audio → state → ground → fog → particles → pickups → stones
 
 ```js
 state      // 'menu' | 'play' | 'over'  (let)
+SWORD_TIERS// const — 3 sword upgrade tiers (index 0 = tier 1): `{ arc, range, cool, glow }`; drives `startSwing` cooldown, `swingHit` arc/range, blade color
 score, time, spawnTimer, lastT          // (let)
 mouse = { x, y }                       // aim target
 player   // mutated IN PLACE — never reassigned:
          //   x, y, r, speed, hp, maxHp, facing,
-         //   swing, cool, coolLeft, invuln, swingId, moving, walk
+         //   swing, coolLeft, invuln, swingId, moving, walk, tier
 zombies  // array; REASSIGNED via .filter() each frame after removals
 particles// same pattern: mutated in place, array reassigned via .filter()
-pickups  // same pattern: `{ x, y, kind: 'heart'|'gem', life, max, phase, taken }`
+pickups  // same pattern: `{ x, y, kind: 'heart'|'gem'|'shard', life, max, phase, taken }`
 stones   // same pattern: `{ sx, sy, x, y, tx, ty, life, maxLife, dmg, dead }` — fixed-target projectile
 wave     // (let) — `1 + floor(time/25)`, read by HUD and spawn mix
 boss     // (let) — reference to the live `Boss`, or `null`
@@ -76,12 +77,13 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 
 ## Combat invariants
 
-- Swing: `player.swing = 0.25` (animation window), `player.cool = 0.4` (cooldown), one
+- Swing: `player.swing = 0.25` (animation window), cooldown `SWORD_TIERS[player.tier - 1].cool` (tier-based: 0.40 / 0.33 / 0.28 for tiers 1 / 2 / 3), one
   swing per cooldown (`startSwing` guards on `coolLeft > 0`).
 - `player.swingId` increments per swing. `swingHit()` (called every frame while
   `swing > 0`) hits each zombie **at most once per swing** via `z.lastHit === player.swingId`.
   Do not break this dedup — it is what makes one swing = one hit per zombie.
-- Swing hitbox: distance `≤ 58 + z.r` AND `angDiff(zombie angle, player.facing) ≤ 1.4` rad.
+- Swing hitbox: distance `≤ SWORD_TIERS[player.tier - 1].range + z.r` AND `angDiff(zombie angle, player.facing) ≤ SWORD_TIERS[player.tier - 1].arc` rad (tier 1 = 58 / 1.4, matching the old hardcoded values).
+- Sword tier: `player.tier` (1–3) starts at 1; collecting a `shard` pickup raises it (wider arc, longer range, faster cooldown). At max tier a shard grants +50 score instead. The tier also sets the blade color (`SWORD_TIERS[tier-1].glow`) and the HUD `TIER` line.
 - Hit effect: `-1 hp`, `z.flash = 1`, `z.stun = 0.4` (zombie stops moving), 16 px knockback.
 - Contact: overlap `z.r + player.r + 2` always pushes the zombie 10 px away; damage only when `player.invuln <= 0` (then `−z.dmg`, `invuln = 0.8` i-frames). Player flash in render keys off `invuln`.
 - Zombies: runner `r12 hp1 dmg12, score 10` (always chases; speed wave-scaled); shambler `r12 hp1 dmg12 speed 28–45, score 10` (passive wanderer — starts chasing when the player comes within 110 px; aggro is one-way, and offscreen wanderers steer back toward center); Brute (chance grows with wave) `r18 hp3 dmg25 speed 38–55, score 25` with HP bar when `hp < 3`; thrower (wave 3+, cap 3) `r13 hp2 speed 45–60, score 20`, HP bar when `hp < 2` — keeps ~170 px: approaches, stops, spins its arm (1.2 s windup), then throws a stone at the player's current spot (windup cancels if the player breaks < 100 or > 230 px); boss (wave 2) `r30 hp(20 + 10·(wave−4), min 20) dmg30 speed 26–38, score 150` — always-hunting, HP bar always shown, plus a top-center boss bar in the HUD while alive; boss death drops a guaranteed heart + 3 gems.
@@ -92,7 +94,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 ## Rendering
 
 - Ground is pre-rendered once (don't repaint per frame).
-- `draw()` order: ground → fog → particles (alpha = life/max) → pickups → **y-sorted entities** (player + zombies, painter's algorithm) → stones (in flight, over entities, with ground shadow + parabolic arc) → HUD (HP bar left, score/wave/time/best right, top-center boss bar while alive).
+- `draw()` order: ground → fog → particles (alpha = life/max) → pickups → **y-sorted entities** (player + zombies, painter's algorithm) → stones (in flight, over entities, with ground shadow + parabolic arc) → HUD (HP bar left, score/wave/time/best/tier right, tier-colored blade, top-center boss bar while alive).
 - Player faces `player.facing` (local +x = facing); sword arm/sword drawn relative to that.
 - Colors are inline hex/rgba literals; no palette module.
 
@@ -111,7 +113,7 @@ menu --mousedown on overlay--> play --hp<=0--> over --click overlay / R--> play
 ## Debug / verification
 
 - `window.__g` (set in `main.js`) is the smoke-test hook:
-  `__g.state`, `__g.score`, `__g.zombies`, `__g.player`, `__g.stones`, `__g.mouse`, `__g.pickups`, `__g.wave`, `__g.boss`, `__g.best`, `__g.reset()`.
+  `__g.state`, `__g.score`, `__g.zombies`, `__g.player`, `__g.stones`, `__g.mouse`, `__g.pickups`, `__g.wave`, `__g.boss`, `__g.best`, `__g.tier`, `__g.reset()`.
 - Smoke-test recipe: serve the repo root (see README → Run), then open `http://localhost:8000`.
   In-browser: start via `document.getElementById('overlay').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))`, then assert on `__g.*`.
 - Note for browser automation: evaluate page code in the **main world** (`tab.evaluate` / CDP `Runtime.evaluate` in main context); `page.evaluate` from an isolated-world wrapper returns a different scope where game globals are invisible.

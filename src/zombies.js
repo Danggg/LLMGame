@@ -3,12 +3,13 @@
 'use strict';
 
 function swingHit() {
+  const t = SWORD_TIERS[player.tier - 1];
   for (const z of zombies) {
     if (z.dead || z.lastHit === player.swingId) continue;
     const dx = z.x - player.x, dy = z.y - player.y;
     const d = Math.hypot(dx, dy);
-    if (d > 58 + z.r) continue;
-    if (angDiff(Math.atan2(dy, dx), player.facing) > 1.4) continue;
+    if (d > t.range + z.r) continue;
+    if (angDiff(Math.atan2(dy, dx), player.facing) > t.arc) continue;
     z.lastHit = player.swingId;
     z.hp -= 1; z.flash = 1; z.stun = 0.4;
     const nx = d > 0 ? dx / d : 1, ny = d > 0 ? dy / d : 0;

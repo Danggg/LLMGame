@@ -30,6 +30,15 @@ and coding conventions.
 | click | swing |
 | `R` | restart |
 
+## Milestone 6
+
+- Sword upgrade tiers: dead zombies drop glowing **sword shards** that upgrade your
+  blade across 3 tiers — wider swing arc, longer reach, faster cooldown
+- Tier 1 is the original steel blade; tier 2 (cyan) and tier 3 (gold) swing wider,
+  farther, and faster; the HUD shows `TIER <n>` in the blade's glow color
+- At max tier a shard is worth +50 score (a gem) instead of a 4th tier
+- Shard drop rates: boss guaranteed (with its heart + 3 gems), brutes 25%, smalls 6%
+
 ## Milestone 5
 
 - Setting: the arena is now a graveyard — the pre-rendered ground carries
@@ -71,4 +80,4 @@ and coding conventions.
 
 ## Proposed next milestones
 
-- **M6** — Touch controls / gamepad support *(requires approval before starting)*
+- **M7** — Touch controls / gamepad support *(requires approval before starting)*

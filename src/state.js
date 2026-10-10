@@ -14,8 +14,8 @@ const mouse = { x: W / 2, y: H / 2 - 60 };
 const player = {
   x: W / 2, y: H / 2, r: 13, speed: 230,
   hp: 100, maxHp: 100, facing: 0,
-  swing: 0, cool: 0.4, coolLeft: 0, invuln: 0, swingId: 0,
-  moving: false, walk: 0,
+  swing: 0, coolLeft: 0, invuln: 0, swingId: 0,
+  moving: false, walk: 0, tier: 1,
 };
 let zombies = [];
 let particles = [];
@@ -25,3 +25,11 @@ let boss = null;              // current Boss reference (null when none alive)
 let best = 0;                 // best score (localStorage 'zs-best')
 try { best = parseInt(localStorage.getItem('zs-best'), 10) || 0; } catch (e) {}
 let wave = 1;
+
+// sword tiers: index 0 = base (tier 1). arc = half-arc (rad), range = reach (px),
+// cool = swing cooldown (s), glow = blade color. Upgraded by 'shard' pickups.
+const SWORD_TIERS = [
+  { arc: 1.4, range: 58, cool: 0.40, glow: '#d7dce6' },  // tier 1 (steel)
+  { arc: 1.9, range: 70, cool: 0.33, glow: '#7fd4e0' },  // tier 2 (cyan)
+  { arc: 2.3, range: 84, cool: 0.28, glow: '#ffd24a' },  // tier 3 (gold)
+];

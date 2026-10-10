@@ -5,6 +5,7 @@ function drawSword(e, px, py, ang) {
   e.save();
   e.translate(px, py);
   e.rotate(ang);
+  const blade = SWORD_TIERS[player.tier - 1].glow;
   // pommel
   e.fillStyle = '#b08d3c';
   e.beginPath(); e.arc(player.r - 7, 0, 2, 0, Math.PI * 2); e.fill();
@@ -14,15 +15,15 @@ function drawSword(e, px, py, ang) {
   // crossguard
   e.fillRect(player.r + 2, -4.5, 3, 9);
   // blade
-  e.fillStyle = '#d7dce6';
+  e.fillStyle = blade;
   e.fillRect(player.r + 5, -1.5, 28, 3);
   // fuller
   e.strokeStyle = 'rgba(120,130,150,0.8)';
   e.lineWidth = 1;
   e.beginPath(); e.moveTo(player.r + 9, 0); e.lineTo(player.r + 31, 0); e.stroke();
   // tip
-  e.fillStyle = '#d7dce6';
   e.beginPath();
+  e.fillStyle = blade;
   e.moveTo(player.r + 33, -3);
   e.lineTo(player.r + 38, 0);
   e.lineTo(player.r + 33, 3);
@@ -31,12 +32,12 @@ function drawSword(e, px, py, ang) {
 }
 function drawPlayer(e) {
   const p = player;
+  const half = SWORD_TIERS[p.tier - 1].arc - 0.1;
   e.save();
   if (p.invuln > 0 && Math.floor(performance.now() / 90) % 2 === 0) e.globalAlpha = 0.4;
   // swing trail
   if (p.swing > 0) {
-    const prog = 1 - p.swing / 0.25;
-    const from = p.facing - 1.3, to = p.facing + 1.3;
+    const from = p.facing - half, to = p.facing + half;
     e.strokeStyle = 'rgba(255,255,255,0.3)';
     e.lineWidth = 3;
     e.beginPath();
@@ -93,7 +94,7 @@ function drawPlayer(e) {
   e.beginPath(); e.arc(p.r * 0.55, -p.r * 0.35, 3, 0, Math.PI * 2); e.fill();
   // sword arm follows the sword (grip at local +x)
   const sAng = p.swing > 0
-    ? p.facing - 1.3 + 2.6 * swingProg
+    ? p.facing - half + 2 * half * swingProg
     : p.facing + 0.7;
   const d = sAng - p.facing;
   const hx = Math.cos(d) * (p.r - 2), hy = Math.sin(d) * (p.r - 2);
@@ -134,6 +135,9 @@ function drawHUD(e) {
   e.fillText('WAVE ' + wave, W - 20, 50);
   e.fillText('TIME ' + Math.floor(time) + 's', W - 20, 70);
   e.fillText('BEST ' + best, W - 20, 90);
+  e.fillStyle = SWORD_TIERS[player.tier - 1].glow;
+  e.fillText('TIER ' + player.tier, W - 20, 110);
+  e.fillStyle = '#cfd3da';
   e.textAlign = 'left';
   // boss HP bar (top center, while the boss is alive)
   if (boss) {
@@ -157,6 +161,18 @@ function drawPickups(e) {
       e.beginPath(); e.arc(p.x - 3, y - 2, 4.5, 0, Math.PI * 2); e.fill();
       e.beginPath(); e.arc(p.x + 3, y - 2, 4.5, 0, Math.PI * 2); e.fill();
       e.beginPath(); e.moveTo(p.x - 6.8, y); e.lineTo(p.x + 6.8, y); e.lineTo(p.x, y + 8); e.closePath(); e.fill();
+    } else if (p.kind === 'shard') {
+      e.save();
+      e.translate(p.x, y);
+      e.fillStyle = 'rgba(150,225,255,0.35)';   // soft glow
+      e.beginPath();
+      e.moveTo(0, -8); e.lineTo(5, 0); e.lineTo(0, 8); e.lineTo(-5, 0); e.closePath(); e.fill();
+      e.fillStyle = '#bff0ff';                  // bright core
+      e.beginPath();
+      e.moveTo(0, -6.5); e.lineTo(3.4, 0); e.lineTo(0, 6.5); e.lineTo(-3.4, 0); e.closePath(); e.fill();
+      e.strokeStyle = 'rgba(255,255,255,0.7)'; e.lineWidth = 1;
+      e.beginPath(); e.moveTo(0, -6.5); e.lineTo(0, 6.5); e.stroke();
+      e.restore();
     } else {
       e.save();
       e.translate(p.x, y); e.rotate(Math.PI / 4);

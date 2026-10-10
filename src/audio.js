@@ -26,6 +26,7 @@ function sfx(kind) {
       boss:  ['sawtooth', 70, 35, 0.5, 0.12],
       throw: ['sine', 240, 110, 0.15, 0.08],
       thud:  ['sine', 130, 45, 0.12, 0.10],
+      upgrade:['sine', 300, 1200, 0.28, 0.09],
     }[kind];
     o.frequency.setValueAtTime(spec[1], t0);
     o.frequency.exponentialRampToValueAtTime(spec[2], t0 + spec[3]);

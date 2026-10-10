@@ -32,8 +32,9 @@ function drawSword(e, px, py, ang) {
 }
 function drawPlayer(e) {
   const p = player;
-  const half = SWORD_TIERS[p.tier - 1].arc - 0.1;
   e.save();
+  const half = SWORD_TIERS[p.tier - 1].arc - 0.1;
+  const swingProg = p.swing > 0 ? 1 - p.swing / 0.25 : 0;
   if (p.invuln > 0 && Math.floor(performance.now() / 90) % 2 === 0) e.globalAlpha = 0.4;
   // swing trail
   if (p.swing > 0) {
@@ -41,7 +42,7 @@ function drawPlayer(e) {
     e.strokeStyle = 'rgba(255,255,255,0.3)';
     e.lineWidth = 3;
     e.beginPath();
-    e.arc(p.x, p.y, p.r + 26, from, from + (to - from) * prog);
+    e.arc(p.x, p.y, p.r + 26, from, from + (to - from) * swingProg);
     e.stroke();
   }
   // shadow
@@ -51,7 +52,6 @@ function drawPlayer(e) {
   e.translate(p.x, p.y);
   e.rotate(p.facing);
   const t = time;
-  const swingProg = p.swing > 0 ? 1 - p.swing / 0.25 : 0;
   if (p.swing > 0) e.translate(Math.sin(swingProg * Math.PI) * 3, 0); // forward lunge
   const stride = p.moving ? Math.sin(p.walk * 1.4) : 0;
   // legs, alternating along facing axis

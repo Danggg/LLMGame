@@ -20,6 +20,17 @@
   #overlay .changelog { font-size: 12px; color: #6f7680; line-height: 1.8; }
   #overlay .changelog b { color: #9aa0aa; }
   #overlay.hidden { display: none; }
+  /* fullscreen mode — active once the game is started */
+  html.fs { background: #000; }
+  html.fs body {
+    margin: 0; display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%;
+  }
+  html.fs #wrap { width: auto; max-width: 100vw; margin: 0; }
+  html.fs canvas {
+    width: min(100vw, calc(100vh * 960 / 540));
+    max-width: none; height: auto; border-radius: 0;
+  }
 </style>
 </head>
 <body>
